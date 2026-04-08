@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rejected Execution</title>
+            <meta name="description"
+              content="Search or indexing requests are rejected due to thread pool saturation">
+
+        <link rel="canonical"
+              href="https://dape.work/elasticsearch/errors/rejected-execution">
+
+        
+        <meta property="og:title" content="Rejected Execution">
+        <meta property="og:description" content="Search or indexing requests are rejected due to thread pool saturation">
+        <meta property="og:type" content="article">
+
+        
+        <script type="application/ld+json">
+            {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "Rejected Execution",
+    "description": "Search or indexing requests are rejected due to thread pool saturation",
+    "author": {
+        "@type": "Organization",
+        "name": "Dape",
+        "url": "https://dape.work"
+    },
+    "publisher": {
+        "@type": "Organization",
+        "name": "Dape",
+        "url": "https://dape.work"
+    },
+    "datePublished": "2026-03-31T09:46:43+00:00",
+    "dateModified": "2026-03-31T09:46:43+00:00",
+    "mainEntityOfPage": "https://dape.work/elasticsearch/errors/rejected-execution.html",
+    "keywords": ""
+}
+        </script>
+
+                    <script type="application/ld+json">
+                {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "name": "Rejected Execution",
+    "description": "Search or indexing requests are rejected due to thread pool saturation",
+    "step": [
+        {
+            "@type": "HowToStep",
+            "position": 1,
+            "text": "Identify overloaded thread pools and nodes"
+        },
+        {
+            "@type": "HowToStep",
+            "position": 2,
+            "text": "Increase thread pool sizes via cluster settings if hardware permits"
+        },
+        {
+            "@type": "HowToStep",
+            "position": 3,
+            "text": "Implement rate limiting or request throttling at application level"
+        },
+        {
+            "@type": "HowToStep",
+            "position": 4,
+            "text": "Optimize queries and indexing operations to reduce load"
+        },
+        {
+            "@type": "HowToStep",
+            "position": 5,
+            "text": "Scale the cluster horizontally by adding nodes"
+        }
+    ]
+}
+            </script>
+    
+
+    <script>
+        window.setAppearance = function(appearance) {
+            let setDark = () => document.documentElement.classList.add('dark')
+            let setLight = () => document.documentElement.classList.remove('dark')
+            let setButtons = (appearance) => {
+                document.querySelectorAll('button[onclick^="setAppearance"]').forEach((button) => {
+                    button.setAttribute('aria-pressed', String(appearance === button.value))
+                })
+            }
+            if (appearance === 'system') {
+                let media = window.matchMedia('(prefers-color-scheme: dark)')
+                window.localStorage.removeItem('appearance')
+                media.matches ? setDark() : setLight()
+            } else if (appearance === 'dark') {
+                window.localStorage.setItem('appearance', 'dark')
+                setDark()
+            } else if (appearance === 'light') {
+                window.localStorage.setItem('appearance', 'light')
+                setLight()
+            }
+            if (document.readyState === 'complete') {
+                setButtons(appearance)
+            } else {
+                document.addEventListener("DOMContentLoaded", () => setButtons(appearance))
+            }
+        }
+        window.setAppearance(window.localStorage.getItem('appearance') || 'system')
+    </script>
+
+    <link rel="preload" as="style" href="https://dape.work/build/assets/app-j1dumm_6.css" /><link rel="modulepreload" as="script" href="https://dape.work/build/assets/app-BhejUJDv.js" /><link rel="stylesheet" href="https://dape.work/build/assets/app-j1dumm_6.css" /><script type="module" src="https://dape.work/build/assets/app-BhejUJDv.js"></script></head>
+
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 antialiased" x-data="{
+    sidebarOpen: localStorage.getItem('sidebarOpen') === null ? window.innerWidth >= 1024 : localStorage.getItem('sidebarOpen') === 'true',
+    toggleSidebar() {
+        this.sidebarOpen = !this.sidebarOpen;
+        localStorage.setItem('sidebarOpen', this.sidebarOpen);
+    },
+    temporarilyOpenSidebar() {
+        if (!this.sidebarOpen) {
+            this.sidebarOpen = true;
+            localStorage.setItem('sidebarOpen', true);
+        }
+    },
+    formSubmitted: false,
+}">
+
+    <!-- Main Container -->
+    <div class="min-h-screen flex flex-col">
+
+        <!-- Header -->
+<header class="bg-white dark:bg-gray-800 shadow-sm z-20 border-b border-gray-200 dark:border-gray-700">
+    <div class="flex items-center justify-between h-16 px-4">
+        <!-- Left side: Logo and toggle -->
+        <div class="flex items-center">
+            <button @click="toggleSidebar"
+                class="p-2 rounded-md text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 focus:outline-none">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
+            <div class="ml-4 font-semibold text-xl text-blue-600 dark:text-blue-400">DAPE.work</div>
+        </div>
+
+        <!-- Right side: Search, notifications, profile -->
+        <div class="flex items-center space-x-4">
+            <!-- Search -->
+            <!--<form action="/search" method="get">
+                <input
+                    type="search"
+                    name="q"
+                    placeholder="Search Elasticsearch errors…"
+                    minlength="2"
+                    required
+                >
+                <button type="submit">Search</button>
+            </form>
+            -->
+
+                            <div class="flex items-center space-x-2">
+                    <a href="https://dape.work/login" class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Login</a>
+                    <a href="https://dape.work/register" class="text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 px-3 py-1.5 rounded-md transition-colors">Register</a>
+                </div>
+                    </div>
+    </div>
+</header>
+
+        <!-- Main Content Area -->
+        <div class="flex flex-1 overflow-hidden">
+
+            <aside :class="{ 'w-full md:w-64': sidebarOpen, 'w-0 md:w-16 hidden md:block': !sidebarOpen }"
+                class="bg-sidebar text-sidebar-foreground border-r border-gray-200 dark:border-gray-700 sidebar-transition overflow-hidden">
+                <!-- Sidebar Content -->
+                <div class="h-full flex flex-col">
+                    <!-- Sidebar Menu -->
+                    <nav class="flex-1 overflow-y-auto custom-scrollbar py-4">
+                        <ul class="space-y-1 px-2">
+                            <!-- Dashboard -->
+                            
+                            <li>
+    <a href="https://dape.work" class="flex items-center text-sm rounded-md px-3 py-2 justify-center transition-colors duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground text-sidebar-foreground"
+    :class="{ 'justify-center': !sidebarOpen, 'justify-start': sidebarOpen }">
+        <svg class="w-5 h-5 text-gray-500" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc. --><path d="M575.8 255.5c0 18-15 32.1-32 32.1l-32 0 .7 160.2c0 2.7-.2 5.4-.5 8.1l0 16.2c0 22.1-17.9 40-40 40l-16 0c-1.1 0-2.2 0-3.3-.1c-1.4 .1-2.8 .1-4.2 .1L416 512l-24 0c-22.1 0-40-17.9-40-40l0-24 0-64c0-17.7-14.3-32-32-32l-64 0c-17.7 0-32 14.3-32 32l0 64 0 24c0 22.1-17.9 40-40 40l-24 0-31.9 0c-1.5 0-3-.1-4.5-.2c-1.2 .1-2.4 .2-3.6 .2l-16 0c-22.1 0-40-17.9-40-40l0-112c0-.9 0-1.9 .1-2.8l0-69.7-32 0c-18 0-32-14-32-32.1c0-9 3-17 10-24L266.4 8c7-7 15-8 22-8s15 2 21 7L564.8 231.5c8 7 12 15 11 24z"/></svg>        <span x-show="sidebarOpen" x-transition:enter="transition-all duration-300" x-transition:enter-start="opacity-0 transform -translate-x-2"
+            x-transition:enter-end="opacity-100 transform translate-x-0" x-transition:leave="transition-all duration-300"
+            x-transition:leave-start="opacity-100 transform translate-x-0" x-transition:leave-end="opacity-0 transform -translate-x-2"
+            class="ml-3 whitespace-nowrap">Home</span>
+    </a>
+</li>
+
+                            <li>
+    <a href="https://dape.work/categories" class="flex items-center text-sm rounded-md px-3 py-2 justify-center transition-colors duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground text-sidebar-foreground"
+    :class="{ 'justify-center': !sidebarOpen, 'justify-start': sidebarOpen }">
+        <svg class="w-5 h-5 text-gray-500" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc. --><path d="M64 480H448c35.3 0 64-28.7 64-64V160c0-35.3-28.7-64-64-64H288c-10.1 0-19.6-4.7-25.6-12.8L243.2 57.6C231.1 41.5 212.1 32 192 32H64C28.7 32 0 60.7 0 96V416c0 35.3 28.7 64 64 64z"/></svg>        <span x-show="sidebarOpen" x-transition:enter="transition-all duration-300" x-transition:enter-start="opacity-0 transform -translate-x-2"
+            x-transition:enter-end="opacity-100 transform translate-x-0" x-transition:leave="transition-all duration-300"
+            x-transition:leave-start="opacity-100 transform translate-x-0" x-transition:leave-end="opacity-0 transform -translate-x-2"
+            class="ml-3 whitespace-nowrap">Categories</span>
+    </a>
+</li>
+
+                            <li>
+    <a href="https://dape.work/tags" class="flex items-center text-sm rounded-md px-3 py-2 justify-center transition-colors duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground text-sidebar-foreground"
+    :class="{ 'justify-center': !sidebarOpen, 'justify-start': sidebarOpen }">
+        <svg class="w-5 h-5 text-gray-500" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc. --><path d="M345 39.1L472.8 168.4c52.4 53 52.4 138.2 0 191.2L360.8 472.9c-9.3 9.4-24.5 9.5-33.9 .2s-9.5-24.5-.2-33.9L438.6 325.9c33.9-34.3 33.9-89.4 0-123.7L310.9 72.9c-9.3-9.4-9.2-24.6 .2-33.9s24.6-9.2 33.9 .2zM0 229.5L0 80C0 53.5 21.5 32 48 32l149.5 0c17 0 33.3 6.7 45.3 18.7l168 168c25 25 25 65.5 0 90.5L277.3 442.7c-25 25-65.5 25-90.5 0l-168-168C6.7 262.7 0 246.5 0 229.5zM144 144a32 32 0 1 0 -64 0 32 32 0 1 0 64 0z"/></svg>        <span x-show="sidebarOpen" x-transition:enter="transition-all duration-300" x-transition:enter-start="opacity-0 transform -translate-x-2"
+            x-transition:enter-end="opacity-100 transform translate-x-0" x-transition:leave="transition-all duration-300"
+            x-transition:leave-start="opacity-100 transform translate-x-0" x-transition:leave-end="opacity-0 transform -translate-x-2"
+            class="ml-3 whitespace-nowrap">Tags</span>
+    </a>
+</li>
+
+                            <li>
+    <a href="https://dape.work/tools" class="flex items-center text-sm rounded-md px-3 py-2 justify-center transition-colors duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground text-sidebar-foreground"
+    :class="{ 'justify-center': !sidebarOpen, 'justify-start': sidebarOpen }">
+        <svg class="w-5 h-5 text-gray-500" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!-- Font Awesome Free 5.15.4 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) --><path d="M501.1 395.7L384 278.6c-23.1-23.1-57.6-27.6-85.4-13.9L192 158.1V96L64 0 0 64l96 128h62.1l106.6 106.6c-13.6 27.8-9.2 62.3 13.9 85.4l117.1 117.1c14.6 14.6 38.2 14.6 52.7 0l52.7-52.7c14.5-14.6 14.5-38.2 0-52.7zM331.7 225c28.3 0 54.9 11 74.9 31l19.4 19.4c15.8-6.9 30.8-16.5 43.8-29.5 37.1-37.1 49.7-89.3 37.9-136.7-2.2-9-13.5-12.1-20.1-5.5l-74.4 74.4-67.9-11.3L334 98.9l74.4-74.4c6.6-6.6 3.4-17.9-5.7-20.2-47.4-11.7-99.6.9-136.6 37.9-28.5 28.5-41.9 66.1-41.2 103.6l82.1 82.1c8.1-1.9 16.5-2.9 24.7-2.9zm-103.9 82l-56.7-56.7L18.7 402.8c-25 25-25 65.5 0 90.5s65.5 25 90.5 0l123.6-123.6c-7.6-19.9-9.9-41.6-5-62.7zM64 472c-13.2 0-24-10.8-24-24 0-13.3 10.7-24 24-24s24 10.7 24 24c0 13.2-10.7 24-24 24z"/></svg>        <span x-show="sidebarOpen" x-transition:enter="transition-all duration-300" x-transition:enter-start="opacity-0 transform -translate-x-2"
+            x-transition:enter-end="opacity-100 transform translate-x-0" x-transition:leave="transition-all duration-300"
+            x-transition:leave-start="opacity-100 transform translate-x-0" x-transition:leave-end="opacity-0 transform -translate-x-2"
+            class="ml-3 whitespace-nowrap">Tools</span>
+    </a>
+</li>
+
+                            <li x-data="{ open: false }">
+    <button @click="
+        if (sidebarOpen) {
+            open = !open;
+        } else {
+            temporarilyOpenSidebar();
+            open = true;
+        }
+    " class="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground text-sidebar-foreground"
+    :class="{ 'justify-center': !sidebarOpen, 'justify-between': sidebarOpen }">
+        <div class="flex items-center" :class="{ 'justify-center': !sidebarOpen }">
+            <svg class="w-5 h-5 text-gray-500" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc. --><path d="M64 64c0-17.7-14.3-32-32-32S0 46.3 0 64L0 400c0 44.2 35.8 80 80 80l400 0c17.7 0 32-14.3 32-32s-14.3-32-32-32L80 416c-8.8 0-16-7.2-16-16L64 64zm406.6 86.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L320 210.7l-57.4-57.4c-12.5-12.5-32.8-12.5-45.3 0l-112 112c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L240 221.3l57.4 57.4c12.5 12.5 32.8 12.5 45.3 0l128-128z"/></svg>            <span x-show="sidebarOpen" x-transition:enter="transition-all duration-300" x-transition:enter-start="opacity-0 transform -translate-x-2"
+                x-transition:enter-end="opacity-100 transform translate-x-0" x-transition:leave="transition-all duration-300"
+                x-transition:leave-start="opacity-100 transform translate-x-0" x-transition:leave-end="opacity-0 transform -translate-x-2"
+                class="ml-3 whitespace-nowrap">Complexity</span>
+        </div>
+        <svg x-show="sidebarOpen" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-transform"
+            :class="{ 'rotate-90': open }" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+    </button>
+
+    <!-- Level 2 submenu -->
+    <div x-show="open && sidebarOpen" class="mt-1 ml-4 space-y-1">
+        <a href="https://dape.work/complexity/beginner" class="flex items-center px-3 py-2 text-sm rounded-md transition-colors duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground text-sidebar-foreground"
+:class="{ 'justify-center': !sidebarOpen, 'justify-start': sidebarOpen }">
+    <svg class="w-5 h-5 text-gray-500" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc. --><path d="M576 0c17.7 0 32 14.3 32 32l0 448c0 17.7-14.3 32-32 32s-32-14.3-32-32l0-448c0-17.7 14.3-32 32-32zM448 96c17.7 0 32 14.3 32 32l0 352c0 17.7-14.3 32-32 32s-32-14.3-32-32l0-352c0-17.7 14.3-32 32-32zM352 224l0 256c0 17.7-14.3 32-32 32s-32-14.3-32-32l0-256c0-17.7 14.3-32 32-32s32 14.3 32 32zM192 288c17.7 0 32 14.3 32 32l0 160c0 17.7-14.3 32-32 32s-32-14.3-32-32l0-160c0-17.7 14.3-32 32-32zM96 416l0 64c0 17.7-14.3 32-32 32s-32-14.3-32-32l0-64c0-17.7 14.3-32 32-32s32 14.3 32 32z"/></svg>    <span x-show="sidebarOpen" x-transition:enter="transition-all duration-300" x-transition:enter-start="opacity-0 transform -translate-x-2"
+        x-transition:enter-end="opacity-100 transform translate-x-0" x-transition:leave="transition-all duration-300"
+        x-transition:leave-start="opacity-100 transform translate-x-0" x-transition:leave-end="opacity-0 transform -translate-x-2"
+        class="ml-3 whitespace-nowrap">Beginner</span>
+</a>
+                                <a href="https://dape.work/complexity/intermediate" class="flex items-center px-3 py-2 text-sm rounded-md transition-colors duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground text-sidebar-foreground"
+:class="{ 'justify-center': !sidebarOpen, 'justify-start': sidebarOpen }">
+    <svg class="w-5 h-5 text-gray-500" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc. --><path d="M576 0c17.7 0 32 14.3 32 32l0 448c0 17.7-14.3 32-32 32s-32-14.3-32-32l0-448c0-17.7 14.3-32 32-32zM448 96c17.7 0 32 14.3 32 32l0 352c0 17.7-14.3 32-32 32s-32-14.3-32-32l0-352c0-17.7 14.3-32 32-32zM352 224l0 256c0 17.7-14.3 32-32 32s-32-14.3-32-32l0-256c0-17.7 14.3-32 32-32s32 14.3 32 32zM192 288c17.7 0 32 14.3 32 32l0 160c0 17.7-14.3 32-32 32s-32-14.3-32-32l0-160c0-17.7 14.3-32 32-32zM96 416l0 64c0 17.7-14.3 32-32 32s-32-14.3-32-32l0-64c0-17.7 14.3-32 32-32s32 14.3 32 32z"/></svg>    <span x-show="sidebarOpen" x-transition:enter="transition-all duration-300" x-transition:enter-start="opacity-0 transform -translate-x-2"
+        x-transition:enter-end="opacity-100 transform translate-x-0" x-transition:leave="transition-all duration-300"
+        x-transition:leave-start="opacity-100 transform translate-x-0" x-transition:leave-end="opacity-0 transform -translate-x-2"
+        class="ml-3 whitespace-nowrap">Intermediate</span>
+</a>
+                                <a href="https://dape.work/complexity/advanced" class="flex items-center px-3 py-2 text-sm rounded-md transition-colors duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground text-sidebar-foreground"
+:class="{ 'justify-center': !sidebarOpen, 'justify-start': sidebarOpen }">
+    <svg class="w-5 h-5 text-gray-500" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc. --><path d="M576 0c17.7 0 32 14.3 32 32l0 448c0 17.7-14.3 32-32 32s-32-14.3-32-32l0-448c0-17.7 14.3-32 32-32zM448 96c17.7 0 32 14.3 32 32l0 352c0 17.7-14.3 32-32 32s-32-14.3-32-32l0-352c0-17.7 14.3-32 32-32zM352 224l0 256c0 17.7-14.3 32-32 32s-32-14.3-32-32l0-256c0-17.7 14.3-32 32-32s32 14.3 32 32zM192 288c17.7 0 32 14.3 32 32l0 160c0 17.7-14.3 32-32 32s-32-14.3-32-32l0-160c0-17.7 14.3-32 32-32zM96 416l0 64c0 17.7-14.3 32-32 32s-32-14.3-32-32l0-64c0-17.7 14.3-32 32-32s32 14.3 32 32z"/></svg>    <span x-show="sidebarOpen" x-transition:enter="transition-all duration-300" x-transition:enter-start="opacity-0 transform -translate-x-2"
+        x-transition:enter-end="opacity-100 transform translate-x-0" x-transition:leave="transition-all duration-300"
+        x-transition:leave-start="opacity-100 transform translate-x-0" x-transition:leave-end="opacity-0 transform -translate-x-2"
+        class="ml-3 whitespace-nowrap">Advanced</span>
+</a>
+    </div>
+</li>
+
+                            <li x-data="{ open: false }">
+    <button @click="
+        if (sidebarOpen) {
+            open = !open;
+        } else {
+            temporarilyOpenSidebar();
+            open = true;
+        }
+    " class="flex items-center w-full px-3 py-2 text-sm rounded-md hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground text-sidebar-foreground"
+    :class="{ 'justify-center': !sidebarOpen, 'justify-between': sidebarOpen }">
+        <div class="flex items-center" :class="{ 'justify-center': !sidebarOpen }">
+            <svg class="w-5 h-5 text-gray-500" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc. --><path d="M575.8 255.5c0 18-15 32.1-32 32.1l-32 0 .7 160.2c0 2.7-.2 5.4-.5 8.1l0 16.2c0 22.1-17.9 40-40 40l-16 0c-1.1 0-2.2 0-3.3-.1c-1.4 .1-2.8 .1-4.2 .1L416 512l-24 0c-22.1 0-40-17.9-40-40l0-24 0-64c0-17.7-14.3-32-32-32l-64 0c-17.7 0-32 14.3-32 32l0 64 0 24c0 22.1-17.9 40-40 40l-24 0-31.9 0c-1.5 0-3-.1-4.5-.2c-1.2 .1-2.4 .2-3.6 .2l-16 0c-22.1 0-40-17.9-40-40l0-112c0-.9 0-1.9 .1-2.8l0-69.7-32 0c-18 0-32-14-32-32.1c0-9 3-17 10-24L266.4 8c7-7 15-8 22-8s15 2 21 7L564.8 231.5c8 7 12 15 11 24z"/></svg>            <span x-show="sidebarOpen" x-transition:enter="transition-all duration-300" x-transition:enter-start="opacity-0 transform -translate-x-2"
+                x-transition:enter-end="opacity-100 transform translate-x-0" x-transition:leave="transition-all duration-300"
+                x-transition:leave-start="opacity-100 transform translate-x-0" x-transition:leave-end="opacity-0 transform -translate-x-2"
+                class="ml-3 whitespace-nowrap">Elasticsearch</span>
+        </div>
+        <svg x-show="sidebarOpen" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-transform"
+            :class="{ 'rotate-90': open }" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+    </button>
+
+    <!-- Level 2 submenu -->
+    <div x-show="open && sidebarOpen" class="mt-1 ml-4 space-y-1">
+        <a href="https://dape.work/elasticsearch/errors" class="flex items-center px-3 py-2 text-sm rounded-md transition-colors duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground text-sidebar-foreground"
+:class="{ 'justify-center': !sidebarOpen, 'justify-start': sidebarOpen }">
+    <svg class="w-5 h-5 text-gray-500" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc. --><path d="M575.8 255.5c0 18-15 32.1-32 32.1l-32 0 .7 160.2c0 2.7-.2 5.4-.5 8.1l0 16.2c0 22.1-17.9 40-40 40l-16 0c-1.1 0-2.2 0-3.3-.1c-1.4 .1-2.8 .1-4.2 .1L416 512l-24 0c-22.1 0-40-17.9-40-40l0-24 0-64c0-17.7-14.3-32-32-32l-64 0c-17.7 0-32 14.3-32 32l0 64 0 24c0 22.1-17.9 40-40 40l-24 0-31.9 0c-1.5 0-3-.1-4.5-.2c-1.2 .1-2.4 .2-3.6 .2l-16 0c-22.1 0-40-17.9-40-40l0-112c0-.9 0-1.9 .1-2.8l0-69.7-32 0c-18 0-32-14-32-32.1c0-9 3-17 10-24L266.4 8c7-7 15-8 22-8s15 2 21 7L564.8 231.5c8 7 12 15 11 24z"/></svg>    <span x-show="sidebarOpen" x-transition:enter="transition-all duration-300" x-transition:enter-start="opacity-0 transform -translate-x-2"
+        x-transition:enter-end="opacity-100 transform translate-x-0" x-transition:leave="transition-all duration-300"
+        x-transition:leave-start="opacity-100 transform translate-x-0" x-transition:leave-end="opacity-0 transform -translate-x-2"
+        class="ml-3 whitespace-nowrap">Errors</span>
+</a>
+    </div>
+</li>
+                        </ul>
+                    </nav>
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="flex-1 overflow-auto bg-gray-100 dark:bg-gray-900 content-transition">
+                <div class="p-6">
+                    <!-- Success Message -->
+                    
+                                        <div class="max-w-4xl mx-auto">
+        <header class="mb-8">
+            <h1 class="text-3xl font-bold mb-4">Rejected Execution</h1>
+
+            <div class="flex flex-wrap gap-4 text-sm text-gray-600 dark:text-gray-400">
+                <div>
+                    <span class="font-semibold">Severity:</span>
+                    <span class="px-2 py-0.5 rounded-full bg-blue-100 text-blue-800">
+                        High
+                    </span>
+                </div>
+                <div>
+                    <span class="font-semibold">Elasticsearch Version:</span>
+                    8.5.0
+                </div>
+            </div>
+        </header>
+
+        <div class="space-y-8 bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+            <section>
+                <h2 class="text-xl font-bold mb-3 border-b pb-2 dark:border-gray-700">Problem</h2>
+                <p class="text-gray-700 dark:text-gray-300 leading-relaxed">Search or indexing requests are rejected due to thread pool saturation</p>
+            </section>
+
+            <section>
+                <h2 class="text-xl font-bold mb-3 border-b pb-2 dark:border-gray-700">Root Cause</h2>
+                <p class="text-gray-700 dark:text-gray-300 leading-relaxed">Excessive load causing thread pools to reach maximum capacity, leading to request rejections</p>
+            </section>
+
+            <section>
+                <h2 class="text-xl font-bold mb-3 border-b pb-2 dark:border-gray-700">How to Detect</h2>
+
+                <div class="mb-4">
+                    <h3 class="text-lg font-semibold mb-2">Symptoms</h3>
+                    <ul class="list-disc list-inside space-y-1 text-gray-700 dark:text-gray-300">
+                                                    <li>Rejection errors in logs indicating thread pool saturation</li>
+                                                    <li>High thread pool queue sizes</li>
+                                                    <li>Increased response times and timeouts</li>
+                                            </ul>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-semibold mb-2">Commands</h3>
+                    <div class="bg-gray-900 rounded-md p-4 overflow-x-auto">
+                        <pre class="text-sm text-gray-100"><code>GET /_cat/thread_pool?v
+GET /_cluster/health
+GET /_nodes/stats/thread_pool</code></pre>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2 class="text-xl font-bold mb-3 border-b pb-2 dark:border-gray-700">Remediation Steps</h2>
+                <ol class="list-decimal list-inside space-y-2 text-gray-700 dark:text-gray-300">
+                                            <li>Identify overloaded thread pools and nodes</li>
+                                            <li>Increase thread pool sizes via cluster settings if hardware permits</li>
+                                            <li>Implement rate limiting or request throttling at application level</li>
+                                            <li>Optimize queries and indexing operations to reduce load</li>
+                                            <li>Scale the cluster horizontally by adding nodes</li>
+                                    </ol>
+
+                            </section>
+
+            <section>
+                <h2 class="text-xl font-bold mb-3 border-b pb-2 dark:border-gray-700">Prevention</h2>
+                <ul class="list-disc list-inside space-y-1 text-gray-700 dark:text-gray-300">
+                                            <li>Monitor thread pool metrics regularly</li>
+                                            <li>Set appropriate thread pool size limits based on hardware capacity</li>
+                                            <li>Implement proactive load balancing and request rate limiting</li>
+                                            <li>Optimize query and indexing performance</li>
+                                            <li>Scale cluster resources in anticipation of increased load</li>
+                                    </ul>
+            </section>
+
+            <section>
+                <h2 class="text-xl font-bold mb-3 border-b pb-2 dark:border-gray-700">Production Example</h2>
+                <div class="bg-gray-900 rounded-md p-4 overflow-x-auto">
+                    <pre class="text-sm text-gray-100"><code>curl -XPUT &#039;localhost:9200/_cluster/settings&#039; -H &#039;Content-Type: application/json&#039; -d &#039;{&quot;persistent&quot;: {&quot;thread_pool.search.size&quot;: 50, &quot;thread_pool.index.size&quot;: 30}}&#039;</code></pre>
+                </div>
+            </section>
+        </div>
+
+        <div class="mt-8 pb-6">
+            <a href="https://dape.work/elasticsearch/errors" class="text-blue-600 dark:text-blue-400 hover:underline flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                View all Elasticsearch errors
+            </a>
+        </div>
+    </div>
+                                    </div>
+            </main>
+        </div>
+
+        <!-- Footer -->
+<footer class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 mt-auto">
+    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+            <div class="text-gray-500 dark:text-gray-400 text-sm">
+                &copy; 2025 - 2026 DAPE.work. All rights reserved.
+            </div>
+            <div class="flex space-x-6">
+                Need a free N8N to run your workflows? Check out&nbsp;<a href="https://n8nme.com" target="_blank">N8Nme.com</a>
+                <a href="#" class="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300">
+                    <span class="sr-only">Twitter</span>
+                    <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.831 2.851A8.233 8.233 0 012 18.405a11.616 11.616 0 006.29 1.846" />
+                    </svg>
+                </a>
+                <a href="#" class="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300">
+                    <span class="sr-only">GitHub</span>
+                    <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd" />
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </div>
+</footer>
+    </div>
+</body>
+
+</html>
